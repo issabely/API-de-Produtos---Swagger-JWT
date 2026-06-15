@@ -1,0 +1,263 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API de Produtos",
+    "description": "API REST para gerenciamento de produtos. Desenvolvida nas aulas de Backend com documentacao Swagger e autenticacao JWT.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Estudante",
+      "email": "estudante@email.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Servidor local"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Autenticacao",
+      "description": "Rotas de login e token JWT"
+    },
+    {
+      "name": "Produtos",
+      "description": "CRUD de produtos (rotas protegidas)"
+    }
+  ],
+  "paths": {
+    "/login": {
+      "post": {
+        "tags": ["Autenticacao"],
+        "summary": "Realizar login",
+        "description": "Valida login e senha e retorna um token JWT",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              },
+              "example": {
+                "login": "admin",
+                "senha": "123456"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login realizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                },
+                "example": {
+                  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados invalidos",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Erro" },
+                "example": { "erro": "Login e senha sao obrigatorios" }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciais invalidas",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Erro" },
+                "example": { "erro": "Credenciais invalidas" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/produtos": {
+      "get": {
+        "tags": ["Produtos"],
+        "summary": "Listar produtos",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Lista de produtos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Produto" }
+                },
+                "example": [
+                  { "id": 1, "nome": "Notebook", "preco": 3500, "estoque": 10 }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "Nao autorizado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Erro" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Produtos"],
+        "summary": "Criar produto",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProdutoInput" },
+              "example": { "nome": "Monitor", "preco": 899.9, "estoque": 15 }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Produto criado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Produto" }
+              }
+            }
+          },
+          "400": { "description": "Dados invalidos" },
+          "401": { "description": "Nao autorizado" }
+        }
+      }
+    },
+    "/produtos/{id}": {
+      "get": {
+        "tags": ["Produtos"],
+        "summary": "Buscar produto por ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" },
+            "description": "ID do produto"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Produto encontrado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Produto" }
+              }
+            }
+          },
+          "401": { "description": "Nao autorizado" },
+          "404": { "description": "Produto nao encontrado" }
+        }
+      },
+      "put": {
+        "tags": ["Produtos"],
+        "summary": "Atualizar produto",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProdutoInput" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Produto atualizado" },
+          "401": { "description": "Nao autorizado" },
+          "404": { "description": "Produto nao encontrado" }
+        }
+      },
+      "delete": {
+        "tags": ["Produtos"],
+        "summary": "Remover produto",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Produto removido com sucesso" },
+          "401": { "description": "Nao autorizado" },
+          "404": { "description": "Produto nao encontrado" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Informe o token JWT obtido no login. Exemplo: Bearer seu_token"
+      }
+    },
+    "schemas": {
+      "LoginRequest": {
+        "type": "object",
+        "required": ["login", "senha"],
+        "properties": {
+          "login": { "type": "string", "example": "admin" },
+          "senha": { "type": "string", "example": "123456" }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "token": { "type": "string" }
+        }
+      },
+      "Produto": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "nome": { "type": "string", "example": "Notebook" },
+          "preco": { "type": "number", "example": 3500 },
+          "estoque": { "type": "integer", "example": 10 }
+        }
+      },
+      "ProdutoInput": {
+        "type": "object",
+        "required": ["nome", "preco", "estoque"],
+        "properties": {
+          "nome": { "type": "string" },
+          "preco": { "type": "number" },
+          "estoque": { "type": "integer" }
+        }
+      },
+      "Erro": {
+        "type": "object",
+        "properties": {
+          "erro": { "type": "string" }
+        }
+      }
+    }
+  }
+}

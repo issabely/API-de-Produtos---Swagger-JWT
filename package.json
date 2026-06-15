@@ -1,0 +1,19 @@
+{
+  "name": "api-produtos-jwt-swagger",
+  "version": "1.0.0",
+  "description": "API de produtos com documentacao Swagger e autenticacao JWT",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "keywords": ["api", "express", "swagger", "jwt"],
+  "author": "Isabely Gomes",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "swagger-ui-express": "^5.0.1"
+  }
+}
